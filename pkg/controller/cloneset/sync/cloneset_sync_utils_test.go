@@ -281,6 +281,21 @@ func TestCalculateDiffsWithExpectation(t *testing.T) {
 			expectResult: expectationDiffs{},
 		},
 		{
+			// rollback with maxSurge: partition=4, maxSurge=1, 3 new + 2 old = 5 pods
+			// updateOldDiff = 2-4 = -2 (too few old), updateNewDiff = 3-1 = 2 (too many new)
+			// triggers the rollback-surge branch: updateSurge=2, useSurge=min(1,2)=1, useSurgeOldRevision=1
+			name: "rollback partition=4 with maxSurge (step 1/2)",
+			set:  createTestCloneSet(5, intstr.FromInt(4), intstr.FromInt(2), intstr.FromInt(1)),
+			pods: []*v1.Pod{
+				createTestPod(newRevision, appspub.LifecycleStateNormal, true, false),
+				createTestPod(newRevision, appspub.LifecycleStateNormal, true, false),
+				createTestPod(newRevision, appspub.LifecycleStateNormal, true, false),
+				createTestPod(oldRevision, appspub.LifecycleStateNormal, true, false),
+				createTestPod(oldRevision, appspub.LifecycleStateNormal, true, false),
+			},
+			expectResult: expectationDiffs{scaleUpNum: 1, scaleUpNumOldRevision: 3, scaleUpLimit: 1, useSurge: 1, useSurgeOldRevision: 1, updateNum: -2, updateMaxUnavailable: 2},
+		},
+		{
 			name: "specified delete with maxSurge (step 1/4)",
 			set:  createTestCloneSet(5, intstr.FromInt(0), intstr.FromInt(0), intstr.FromInt(1)),
 			pods: []*v1.Pod{
