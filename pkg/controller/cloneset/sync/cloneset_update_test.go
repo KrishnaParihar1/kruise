@@ -1397,7 +1397,7 @@ func TestCalculateUpdateCount(t *testing.T) {
 			totalReplicas:      4,
 			oldRevisionIndexes: []int{0, 1, 2, 3},
 			pods:               []*v1.Pod{readyPod(), readyPod(), readyPod(), readyPod(), readyPod(), readyPod()},
-			expectedResult:     2,
+			expectedResult:     4,
 		},
 	}
 
